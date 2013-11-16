@@ -57,7 +57,7 @@ winner guest bank
 -- Operator for putting two hands together
 (<+) :: Hand -> Hand -> Hand
 (<+) Empty hand2           = hand2
-(<+) (Add card hand) hand2 = (Add card Empty) <+ (hand <+ hand2)
+(<+) (Add card hand) hand2 = (Add card (hand <+ hand2))
 
 -- Test that <+ is associative
 prop_onTopOf_assoc :: Hand -> Hand -> Hand -> Bool
@@ -91,9 +91,9 @@ draw (Add card deck) hand = (deck, (Add card hand))
 playBank :: Hand -> Hand
 playBank deck = playBank' deck Empty
     where playBank' deck hand 
-                | value hand' > 16 = hand'
-                | otherwise        = playBank' deck' hand'
-              where (deck', hand') = draw deck hand
+                | value hand' >= 16 = hand'
+                | otherwise         = playBank' deck' hand'
+              where (deck', hand')  = draw deck hand
 
 -- Shuffles the given hand
 shuffle :: StdGen -> Hand -> Hand
