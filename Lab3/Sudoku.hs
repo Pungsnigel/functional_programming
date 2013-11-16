@@ -30,7 +30,6 @@ allBlankSudoku = Sudoku (makeBlankSudoku 9 [])
  
 -- isSudoku sud checks if sud is really a valid representation of a sudoku
 -- puzzle
-
 isSudoku :: Sudoku -> Bool
 isSudoku sudoku 
     | length (rows sudoku) /= 9             = False
@@ -40,7 +39,8 @@ isSudoku sudoku
 
 -- isSolved sud checks if sud is already solved, i.e. there are no blanks
 isSolved :: Sudoku -> Bool
-isSolved = undefined
+isSolved sudoku = and [check row | row <- rows sudoku]
+    where check row = and [y /= Nothing | y <- row]
 
 -------------------------------------------------------------------------
 
