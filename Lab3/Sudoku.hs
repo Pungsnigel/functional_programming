@@ -25,10 +25,8 @@ example =
 
 -- allBlankSudoku is a sudoku with just blanks
 allBlankSudoku :: Sudoku
-allBlankSudoku = Sudoku (makeBlankSudoku 9 [])
-    where makeBlankSudoku 0 m = m
-          makeBlankSudoku n m = makeBlankSudoku (n-1) ((replicate 9 Nothing):m)
- 
+allBlankSudoku = Sudoku (replicate 9 (replicate 9 Nothing))
+
 -- isSudoku sud checks if sud is really a valid representation of a sudoku
 -- puzzle
 isSudoku :: Sudoku -> Bool
