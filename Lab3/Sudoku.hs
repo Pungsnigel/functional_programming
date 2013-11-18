@@ -2,6 +2,7 @@ module Sudoku where
 
 import Test.QuickCheck
 import Data.Maybe
+import Data.Char
 
 -------------------------------------------------------------------------
 
@@ -44,9 +45,16 @@ isSolved sudoku = and [check row | row <- rows sudoku]
 
 -------------------------------------------------------------------------
 
+toChar :: Maybe Int -> Char
+toChar = maybe '.' intToDigit
+
+sudokuToString :: Sudoku -> String
+sudokuToString sudoku = unlines [map toChar row | row <- rows sudoku ]
+
 -- printSudoku sud prints a representation of the sudoku sud on the screen
 printSudoku :: Sudoku -> IO ()
-printSudoku = undefined
+printSudoku sudoku = do 
+  putStr $ sudokuToString sudoku
 
 -- readSudoku file reads from the file, and either delivers it, or stops
 -- if the file did not contain a sudoku
