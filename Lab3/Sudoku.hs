@@ -43,27 +43,36 @@ isSolved sudoku = and [check row | row <- rows sudoku]
 
 -------------------------------------------------------------------------
 
-toChar :: Maybe Int -> Char
-toChar = maybe '.' intToDigit
-
-sudokuToString :: Sudoku -> String
-sudokuToString sudoku = unlines [map toChar row | row <- rows sudoku ]
-
 -- printSudoku sud prints a representation of the sudoku sud on the screen
 printSudoku :: Sudoku -> IO ()
 printSudoku sudoku = do 
-  putStr $ sudokuToString sudoku
+  putStr $ unlines [map toChar row | row <- rows sudoku]
+    where toChar = maybe '.' intToDigit
 
 -- readSudoku file reads from the file, and either delivers it, or stops
 -- if the file did not contain a sudoku
 readSudoku :: FilePath -> IO Sudoku
-readSudoku = undefined
+readSudoku path = do 
+      content <- readFile path
+      return $ stringToSudoku content
+
+
+stringToSudoku :: String -> Sudoku
+stringToSudoku string = Sudoku [map toSud row | row <- lines string]
+  where toSud '.' = Nothing
+        toSud c   = Just (digitToInt c)
 
 -------------------------------------------------------------------------
 
 -- cell generates an arbitrary cell in a Sudoku
 cell :: Gen (Maybe Int)
-cell = undefined
+cell = frequency
+         [(9, return Nothing),
+          (1, do n <- choose (1,9) 
+          return (Just n))]
+
+nst :: Gen String
+nst = elements ["Bertil", "Torsten"]
 
 -- an instance for generating Arbitrary Sudokus
 instance Arbitrary Sudoku where
