@@ -76,12 +76,6 @@ rNum = do
     n <- choose (1,9)
     return $ Just n
 
--- natural numbers
-nats :: Gen Integer
-nats = do
-     i <- arbitrary
-     return $ abs i
-
 -- an instance for generating Arbitrary Sudokus
 instance Arbitrary Sudoku where
   arbitrary =
