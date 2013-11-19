@@ -66,13 +66,21 @@ stringToSudoku string = Sudoku [map toSud row | row <- lines string]
 
 -- cell generates an arbitrary cell in a Sudoku
 cell :: Gen (Maybe Int)
-cell = frequency
-         [(9, return Nothing),
-          (1, do n <- choose (1,9) 
-          return (Just n))]
+cell = frequency [
+          (9,   return Nothing),
+          (1,   rNum)
+          ]
 
-nst :: Gen String
-nst = elements ["Bertil", "Torsten"]
+rNum :: Gen (Maybe Int)
+rNum = do 
+    n <- choose (1,9)
+    return $ Just n
+
+-- natural numbers
+nats :: Gen Integer
+nats = do
+     i <- arbitrary
+     return $ abs i
 
 -- an instance for generating Arbitrary Sudokus
 instance Arbitrary Sudoku where
@@ -80,4 +88,6 @@ instance Arbitrary Sudoku where
     do rows <- sequence [ sequence [ cell | j <- [1..9] ] | i <- [1..9] ]
        return (Sudoku rows)
 
+prop_sudoku :: Sudoku -> Bool
+prop_sudoku sud = isSudoku sud
 -------------------------------------------------------------------------
