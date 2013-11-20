@@ -3,6 +3,7 @@ module Sudoku where
 import Test.QuickCheck
 import Data.Maybe
 import Data.Char
+import Data.List
 
 -------------------------------------------------------------------------
 
@@ -56,7 +57,6 @@ readSudoku path = do
       content <- readFile path
       return $ stringToSudoku content
 
-
 stringToSudoku :: String -> Sudoku
 stringToSudoku string = Sudoku [map toSud row | row <- lines string]
   where toSud '.' = Nothing
@@ -85,3 +85,10 @@ instance Arbitrary Sudoku where
 prop_sudoku :: Sudoku -> Bool
 prop_sudoku sud = isSudoku sud
 -------------------------------------------------------------------------
+
+
+type Block = [Maybe Int]
+
+isOkayBlock :: Block -> Bool
+isOkayBlock block = length [val | val <- block, val /= Nothing] == 
+                    (length $ nub [val | val <- block, val /= Nothing])
