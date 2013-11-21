@@ -21,12 +21,12 @@ example =
       , [Just 2, Just 7, Nothing,Just 4, Just 6, Nothing,Nothing,Nothing,Nothing]
       , [Nothing,Nothing,Just 5, Just 3, Nothing,Just 8, Just 9, Nothing,Nothing]
       , [Nothing,Just 8, Just 3, Nothing,Nothing,Nothing,Nothing,Just 6, Nothing]
-      , [Nothing,Nothing,Just 7, Just 6, Just 1, Nothing,Nothing,Just 4, Just 3]
+      , [Nothing,Nothing,Just 7, Just 6, Just 9, Nothing,Nothing,Just 4, Just 3]
       ]
 
 -- allBlankSudoku is a sudoku with just blanks
 allBlankSudoku :: Sudoku
-allBlankSudoku = Sudoku (replicate 9 (replicate 9 Nothing))
+allBlankSudoku = Sudoku $ replicate 9 $ replicate 9 Nothing
 
 -- isSudoku sud checks if sud is really a valid representation of a sudoku
 -- puzzle
@@ -39,16 +39,14 @@ isSudoku sudoku
 
 -- isSolved sud checks if sud is already solved, i.e. there are no blanks
 isSolved :: Sudoku -> Bool
-isSolved sudoku = and [check row | row <- rows sudoku]
-    where check row = and [y /= Nothing | y <- row]
+isSolved (Sudoku sud) = Nothing `notElem` concat sud
 
 -------------------------------------------------------------------------
 
 -- printSudoku sud prints a representation of the sudoku sud on the screen
 printSudoku :: Sudoku -> IO ()
 printSudoku sudoku = do 
-  putStr $ unlines [map toChar row | row <- rows sudoku]
-    where toChar = maybe '.' intToDigit
+  putStr $ unlines [map (maybe '.' intToDigit) row | row <- rows sudoku]
 
 -- readSudoku file reads from the file, and either delivers it, or stops
 -- if the file did not contain a sudoku
@@ -86,9 +84,28 @@ prop_sudoku :: Sudoku -> Bool
 prop_sudoku sud = isSudoku sud
 -------------------------------------------------------------------------
 
-
 type Block = [Maybe Int]
 
+-- A block is okay if the length of the block without Nothings is equal to the length of the block
+-- without Nothings or duplicates.
 isOkayBlock :: Block -> Bool
 isOkayBlock block = length [val | val <- block, val /= Nothing] == 
                     (length $ nub [val | val <- block, val /= Nothing])
+
+
+blocks :: Sudoku -> [Block]
+blocks sud = rows sud ++ (transpose $ rows sud) ++ (getBlocks $ rows sud)
+    where getBlocks sud = 
+            (getBlocksFromRows [row | row <- take 3  sud]) ++ 
+            (getBlocksFromRows [row | row <- take 3 $ drop 3  sud]) ++ 
+            (getBlocksFromRows [row | row <- take 3 $ drop 6 sud])
+                where getBlocksFromRows rows = (getBlocksFromRowPosition 0 rows) ++ 
+                                               (getBlocksFromRowPosition 3 rows) ++ 
+                                               (getBlocksFromRowPosition 6 rows)
+                      getBlocksFromRowPosition _ [] = []
+                      getBlocksFromRowPosition n (x:xs) = [concat $ [take 3 $ drop n x] ++ getBlocksFromRowPosition n xs]
+
+isOkay :: Sudoku -> Bool
+isOkay sud = and [isOkayBlock block | block <- blocks sud]
+
+prop_blocks sud = length (blocks sud) == 27 && and [length block == 9 | block <- blocks sud]
