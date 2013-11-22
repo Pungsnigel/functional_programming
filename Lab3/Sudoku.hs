@@ -113,14 +113,6 @@ prop_blocks sud = length (blocks sud) == 27 && and [length block == 9 | block <-
 
 type Pos = (Int, Int)
 
-{-
--- Helper function. Given a sudoku will return a list with a tuple
--- containing an element and that elements position in the inserted sudoku.
-getPositionList :: Sudoku -> [(Pos, Maybe Int)]
-getPositionList sudoku = zip indexes (concat $ rows sudoku)
-    where indexes = [(x,y) | x <- [0..8], y <- [0..8]]
--}
-
 blanks :: Sudoku -> [Pos]
 blanks sudoku = [pos | (pos,val) <- positions sudoku, val == Nothing]
     where positions sud = zip indexes (concat $ rows sud)
@@ -130,4 +122,18 @@ prop_blanksPosition :: Sudoku -> Bool
 prop_blanksPosition sud = all isBlank (blanks sud)
     where isBlank (row,col) = (head $ drop col (head $ drop row (rows sud))) == Nothing
 
+(!!=) :: [a] -> (Int, a) -> [a]
+(!!=) l (p, e) 
+    | p >= length l = l
+    | otherwise     = take p l ++ [e] ++ drop (p+1) l 
 
+prop_insertLength :: [a] -> Bool
+prop_insertLength l = length l == length (l !!= (0,last l))
+
+prop_didInsert ::(Eq a) => [a] -> Bool
+prop_didInsert l = length l == 0 || head (l !!= (0, last l)) == last l
+
+update :: Sudoku -> Pos -> Maybe Int -> Sudoku
+update sudoku (row,col) val = Sudoku (sud !!= (row,newRow))
+    where sud               = rows sudoku
+          newRow            = (sud !! row) !!= (col,val)
