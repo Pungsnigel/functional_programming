@@ -137,3 +137,13 @@ update :: Sudoku -> Pos -> Maybe Int -> Sudoku
 update sudoku (row,col) val = Sudoku (sud !!= (row,newRow))
     where sud               = rows sudoku
           newRow            = (sud !! row) !!= (col,val)
+
+candidates :: Sudoku -> Pos -> [Int]
+candidates sud pos = [x | x <- [1..9], isOkay $ update sud pos (Just x)]
+
+prop_candidatesAreValid :: Sudoku -> Pos -> Bool
+prop_candidatesAreValid sud pos = and [(isOkay $ updatedSudoku x) && (isSudoku $ updatedSudoku x) | x <- candidates sud pos]
+      where updatedSudoku x = update sud pos (Just x)
+
+
+
