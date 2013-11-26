@@ -141,9 +141,14 @@ update sudoku (row,col) val = Sudoku (sud !!= (row,newRow))
 candidates :: Sudoku -> Pos -> [Int]
 candidates sud pos = [x | x <- [1..9], isOkay $ update sud pos (Just x)]
 
-prop_candidatesAreValid :: Sudoku -> Pos -> Bool
-prop_candidatesAreValid sud pos = and [(isOkay $ updatedSudoku x) && (isSudoku $ updatedSudoku x) | x <- candidates sud pos]
-      where updatedSudoku x = update sud pos (Just x)
+prop_candidatesAreValid :: Sudoku -> Bool
+prop_candidatesAreValid sud = and [candidates_validForPos (row,col) | row <- [0..8], col <- [0..8]]
+      where candidates_validForPos pos = and [(isOkay $ updatedSudoku x pos) && 
+                                            (isSudoku $ updatedSudoku x pos) | x <- candidates sud pos]
+            updatedSudoku x position   = update sud position (Just x)
+
+-------------------------------------------------------------------------
+
 
 
 
