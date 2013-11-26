@@ -96,7 +96,7 @@ blocks sud = rows sud ++ (transpose $ rows sud) ++ getBlocks sud
 isOkay :: Sudoku -> Bool
 isOkay sud = all isOkayBlock (blocks sud)
 
-prop_blocks sud = length (blocks sud) == 27 && and [length block == 9 | block <- blocks sud]
+prop_blocks sud = length (blocks sud) == 27 && all (\b -> length b == 9) (blocks sud)
 -------------------------------------------------------------------------
 
 type Pos = (Int, Int)
