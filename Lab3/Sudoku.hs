@@ -83,27 +83,18 @@ prop_sudoku sud = isSudoku sud
 
 type Block = [Maybe Int]
 
--- A block is okay if the length of the block without Nothings is equal to the length of the block
--- without Nothings or duplicates.
 isOkayBlock :: Block -> Bool
-isOkayBlock block = length [val | val <- block, val /= Nothing] == 
-                    (length $ nub [val | val <- block, val /= Nothing])
-
+isOkayBlock block = catMaybes block == catMaybes (nub block)
 
 blocks :: Sudoku -> [Block]
-blocks sud = rows sud ++ (transpose $ rows sud) ++ (getBlocks $ rows sud)
-    where getBlocks sud = 
-            (getBlocksFromRows [row | row <- take 3  sud]) ++ 
-            (getBlocksFromRows [row | row <- take 3 $ drop 3  sud]) ++ 
-            (getBlocksFromRows [row | row <- take 3 $ drop 6 sud])
-                where getBlocksFromRows rows = (getBlocksFromRowPosition 0 rows) ++ 
-                                               (getBlocksFromRowPosition 3 rows) ++ 
-                                               (getBlocksFromRowPosition 6 rows)
-                      getBlocksFromRowPosition _ [] = []
-                      getBlocksFromRowPosition n (x:xs) = [concat $ [take 3 $ drop n x] ++ getBlocksFromRowPosition n xs]
+blocks sud = rows sud ++ (transpose $ rows sud) ++ getBlocks sud
+    where  getBlocks sud          = concat [getBlocksOnRow (rows sud) row | row <- [0,3,6]] 
+           getBlocksOnRow sud row = [getBlock sud row col | col <- [0,3,6]]
+           getBlock sud row col   = concat 
+                [drop col $ take (col+3) rows | rows <- drop row $ take (row+3) sud]
 
 isOkay :: Sudoku -> Bool
-isOkay sud = and [isOkayBlock block | block <- blocks sud]
+isOkay sud = all isOkayBlock (blocks sud)
 
 prop_blocks sud = length (blocks sud) == 27 && and [length block == 9 | block <- blocks sud]
 -------------------------------------------------------------------------
