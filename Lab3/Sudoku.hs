@@ -146,15 +146,26 @@ prop_candidatesAreValid sud = and [candidates_validForPos (row,col) | row <- [0.
 
 -------------------------------------------------------------------------
 solve :: Sudoku -> Maybe Sudoku
-solve sud 
-    | (not $ isOkay sud) || (not $ isSudoku sud) = Nothing
-    | otherwise                                  = solve' sud
-    where solve' sud
-        | null $ blanks sud = Just sud
-        | otherwise         = solve $ update sud pos
-              where pos       = head $ blanks sud
-                    candidate = head $ candidates sud pos
+solve sudoku
+    | (not $ isOkay sudoku) || (not $ isSudoku sudoku) = Nothing
+    | otherwise                                        = solve' sudoku
+      where solve' sud
+              | null $ blanks sud = Just sud
+              | otherwise         = listToMaybe $ catMaybes [solve $ update sud pos (Just cand) | cand <- candidates sud pos]
+                         where pos       = head $ blanks sud
+
+readAndSolve :: FilePath -> IO ()
+readAndSolve path= do 
+    sudoku <- readSudoku path
+    if (solve sudoku) == Nothing
+      then putStrLn "No solution"
+      else printSudoku $ fromJust (solve sudoku)
+
+isSolutionOf :: Sudoku -> Sudoku -> Bool
+isSolutionOf sud1 sud2 = (isSolved sud1) &&
+            (and [b == Nothing | (a,b) <- zipped, a /= b])
+        where zipped = zip (concat $ rows sud1) (concat $ rows sud2)
 
 
-
+    
 
