@@ -31,11 +31,8 @@ allBlankSudoku = Sudoku $ replicate 9 $ replicate 9 Nothing
 -- isSudoku sud checks if sud is really a valid representation of a sudoku
 -- puzzle
 isSudoku :: Sudoku -> Bool
-isSudoku sudoku 
-    | length (rows sudoku) /= 9             = False
-    | otherwise                             = and [check row | row <- rows sudoku]
-        where check row | length row /= 9   = False 
-                        | otherwise         = and [(fromMaybe 1 y) `elem` [1..9] | y <- row]
+isSudoku sudoku         = (length (rows sudoku) == 9) && (and [check row | row <- rows sudoku])
+        where check row = (length row == 9) && (and [(fromMaybe 1 y) `elem` [1..9] | y <- row])
 
 -- isSolved sud checks if sud is already solved, i.e. there are no blanks
 isSolved :: Sudoku -> Bool
@@ -148,6 +145,15 @@ prop_candidatesAreValid sud = and [candidates_validForPos (row,col) | row <- [0.
             updatedSudoku x position   = update sud position (Just x)
 
 -------------------------------------------------------------------------
+solve :: Sudoku -> Maybe Sudoku
+solve sud 
+    | (not $ isOkay sud) || (not $ isSudoku sud) = Nothing
+    | otherwise                                  = solve' sud
+    where solve' sud
+        | null $ blanks sud = Just sud
+        | otherwise         = solve $ update sud pos
+              where pos       = head $ blanks sud
+                    candidate = head $ candidates sud pos
 
 
 
