@@ -23,7 +23,7 @@ update :: Board -> Pos -> Tile -> Board
 update board (row,col) val = Board (b !!= (row,newRow))
     where b                = rows board
           newRow           = (b !! row) !!= (col,val)
-
+{-
 nrOfLivingNeighbours :: Board -> ((Int))
 nrOfLivingNeighbours 
     where positions b = zip indexes (concat $ rows b)
@@ -31,12 +31,13 @@ nrOfLivingNeighbours
           height    = (length $ rows b) - 1
           width     = (length $ head $ rows b) - 1
 
-calculateNextBoard :: Board -> [[Int]]
-calculateNextBoard b p = Board [calculateNextRow (row, int) | row <- rows b, int <- p]
-        where calculateNextRow  tup = map calculateCell tup
+-}
+calculateNextBoard :: Board -> [[Integer]] -> Board
+calculateNextBoard b p = Board $ map calculateNextRow $ zip (rows b) p 
+      where calculateNextRow tup = map calculateCell $ zip (fst tup) (snd tup)
 
-calculateCell :: (Tile, Int) -> Tile
-calculateCell Dead 3  = Alive
-calculateCell Alive 2 = Alive
-calculateCell Alive 3 = Alive
-calculateCell _ _     = Dead
+calculateCell :: (Tile, Integer) -> Tile
+calculateCell (Dead, 3)  = Alive
+calculateCell (Alive, 2) = Alive
+calculateCell (Alive, 3) = Alive
+calculateCell _          = Dead
