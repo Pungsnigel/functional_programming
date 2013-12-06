@@ -14,7 +14,7 @@ allBlankBoard :: Board
 allBlankBoard = Board $ replicate 10 $ replicate 10 Dead
 
 example :: Board
-example = Board ([[Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead],
+example = Board [[Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead],
                   [Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead],
                   [Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead],
                   [Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead],
@@ -24,7 +24,7 @@ example = Board ([[Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead],
                   [Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Alive, Dead],
                   [Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Alive, Dead],
                   [Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead]
-                  ])
+                  ]
 
 -- Inserts an element at a given position of a list
 (!!=) :: [a] -> (Int, a) -> [a]
@@ -40,9 +40,9 @@ update board (row,col) val = Board (b !!= (row,newRow))
 getTile :: Board -> Pos -> Tile
 getTile b (r,c)  
   | r < 0 || c < 0 || r > height || c > width = Dead
-  | otherwise                                 = ((rows b) !! r) !! c
-      where height     = (length $ rows b) - 1
-            width      = (length $ head $ rows b) - 1
+  | otherwise                                 = (rows b !! r) !! c
+      where height     = length (rows b) - 1
+            width      = length (head $ rows b) - 1
 
 calculateNeigbours :: Board -> Pos -> Int
 calculateNeigbours b (r,c) = length [tile | tile <- neighbors, getTile b tile == Alive]
@@ -51,12 +51,12 @@ calculateNeigbours b (r,c) = length [tile | tile <- neighbors, getTile b tile ==
 getNeighbourMatrix :: Board -> [[Int]]
 getNeighbourMatrix b = [map (calculateNeigbours b) row | row <- indexes]
     where indexes    = [[(x,y) | y <- [0..width]] | x <- [0..height]]
-          height     = (length $ rows b) - 1
-          width      = (length $ head $ rows b) - 1
+          height     = length  (rows b) - 1
+          width      = length (head $ rows b) - 1
 
 calculateNextBoard :: Board -> Board
-calculateNextBoard b = Board $ map calculateNextRow $ zip (rows b) p 
-      where calculateNextRow tup = map calculateCell $ zip (fst tup) (snd tup)
+calculateNextBoard b = Board $ zipWith (curry calculateNextRow) (rows b) p 
+      where calculateNextRow = uncurry (zipWith (curry calculateCell))
             p = getNeighbourMatrix b
 
 calculateCell :: (Tile, Int) -> Tile
