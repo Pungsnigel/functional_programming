@@ -6,6 +6,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Simulate
 import Data.Maybe
 import Data.Char
+import Parse
 
 main :: IO ()
 main = do	
@@ -38,16 +39,4 @@ evolveWorld _ ds world
     = let newWorld  = stepWorld world 
         in  newWorld { elapsedTime = 0 }
   | otherwise = world { elapsedTime = elapsedTime world + ds }
-
-stringToNewGame :: String -> Board
-stringToNewGame string = 
-	updateNewBoard allBlankBoard [fromJust(position row) | row <- lines string, position row /= Nothing]
-
-updateNewBoard :: Board -> [Pos] -> Board
-updateNewBoard board []     = board
-updateNewBoard board (x:xs) = updateNewBoard (update board x Alive) xs
-
-position :: [Char] -> Maybe Pos
-position s | isDigit $ head s = Just (read(head s), read(last s))
-position _                    = Nothing
 	
