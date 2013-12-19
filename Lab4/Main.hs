@@ -4,8 +4,6 @@ import Rendering
 import System.Environment
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Simulate
-import Data.Maybe
-import Data.Char
 import Parse
 
 main :: IO ()
@@ -20,12 +18,6 @@ main = do
 	simulate (InWindow "Game of Life" 
            	           (windowSize, windowSize) (5, 5))
 		white 10 world renderWorld evolveWorld 
-
-parseWorld :: FilePath -> IO World
-parseWorld path = do
-	content <- readFile path
-	board <- return $ stringToNewGame content
-	return $ World board (length $ rows board) 5 0.2 0
 
 -- Update the population of a world to the next generation
 stepWorld :: World -> World
